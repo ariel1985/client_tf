@@ -1,4 +1,4 @@
-# Client_Travel_Factory (client-tf)
+# Client_Translator (client-tf)
 
 A Quasar Project
 
@@ -14,6 +14,8 @@ npm install
 quasar dev
 ```
 
+You can now open the app on localhost:9000
+
 
 ### Lint the files
 ```bash
@@ -22,8 +24,6 @@ yarn lint
 npm run lint
 ```
 
-
-
 ### Build the app for production
 ```bash
 quasar build
@@ -31,3 +31,6 @@ quasar build
 
 ### Customize the configuration
 See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+
+
+
