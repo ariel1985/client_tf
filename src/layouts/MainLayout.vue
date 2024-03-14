@@ -36,8 +36,8 @@
           v-ripple
         >
         <q-item-section>
-          <router-link :to="`/translate/${app}`">
-            {{ app }}
+          <router-link :to="`/translate/${app.name}`">
+            {{ app.name }}
           </router-link>
         </q-item-section>
       </q-item>

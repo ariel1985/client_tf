@@ -7,7 +7,7 @@
             <q-table
                 :rows="tableData"
                 :columns="columns"
-                row-key="keyword"
+                row-key="id"
             >
                 <template v-slot:body-cell-keyword="props">
                     <q-td auto-width :props="props">
@@ -50,28 +50,38 @@ const columns = ref([
   { name: 'es', required: true, label: 'Spanish', align: 'left', field: 'es' }
 ])
 
-// get app translations from url api in localhost : /api/Apps/:app/translations
+let id = 0
+
 const fetchTranslations = () => {
-  fetch(`/api/Apps/${app.value}/translations`, {
-    method: 'GET',
-    headers: {
-      Accept: '*/*'
-    }
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      } else {
-        return response.json()
+  const appIndex = appsList.value.findIndex(a => a.name === app.value)
+  if (appIndex !== -1 && appsList.value[appIndex].translations.length > 0) {
+    // App is in the store and has translations, use the translations from the store
+    tableData.value = appsList.value[appIndex].translations
+  } else {
+    // App is not in the store, fetch the translations
+    fetch(`/api/Apps/${app.value}/translations`, {
+      method: 'GET',
+      headers: {
+        Accept: '*/*'
       }
     })
-    .then(data => {
-      translations.value = data
-      tableData.value = Object.entries(data.translations).map(([keyword, translation]) => ({ keyword, ...translation }))
-    })
-    .catch(error => {
-      console.error('Error:', error)
-    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        } else {
+          return response.json()
+        }
+      })
+      .then(data => {
+        translations.value = data
+        tableData.value = Object.entries(data.Translations).map(([keyword, Translation]) => ({ id: id++, keyword, ...Translation }))
+        // Add the app to the store
+        appsList.value.push({ name: app.value, translations: tableData.value })
+      })
+      .catch(error => {
+        console.error('Error:', error)
+      })
+  }
 }
 
 const saveTranslations = () => {
@@ -79,6 +89,8 @@ const saveTranslations = () => {
   if (appIndex !== -1) {
     appsList.value[appIndex].translations = tableData.value
   }
+  // show appList (from store) on console
+  console.log(appsList.value)
 }
 
 // Watch for changes in the route params and re-fetch translations
@@ -88,8 +100,7 @@ watch(() => route.params.app, () => {
 })
 
 const addNewTranslation = () => {
-  tableData.value.push({ keyword: '', en: '', fr: '', es: '' })
+  tableData.value.push({ id: id++, keyword: '', en: '', fr: '', es: '' })
 }
-
 onMounted(fetchTranslations)
 </script>
