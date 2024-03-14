@@ -54,8 +54,6 @@
 import { ref, onMounted } from 'vue'
 import { appsList, fetchAppsList } from '../store'
 
-onMounted(fetchAppsList)
-
 defineOptions({
   name: 'MainLayout'
 })
@@ -66,6 +64,11 @@ function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
 
+onMounted(() => {
+  if (appsList.value.length === 0) {
+    fetchAppsList()
+  }
+})
 </script>
 <style scoped>
 .homelink {

@@ -12,7 +12,7 @@
             <template v-slot:default>
               <q-input v-model="newAppName" dense autofocus counter @keyup.enter="addNewApp" />
               <q-btn
-                  label="Add & Close"
+                  label="Save"
                   color="primary"
                   @click.stop="addNewApp"
               />
@@ -27,31 +27,39 @@
                 v-for="app in appsList"
                 :key="app.id"
                 v-ripple
+                :class="{ 'bg-warning': isUpdatedBeforeLoading(app) }"
             >
                 <q-item-section>
+                  <router-link :to="`/translate/${app.name}`" class="appname">
                     App name: <b>{{ app.name }}</b>
-                    <!-- download as xslx button -->
-                    <q-btn
-                        flat
-                        dense
-                        round
-                        icon="get_app"
-                        aria-label="Download"
-                        @click.stop="downloadAsXlsx(app)"
-                    >
-                      DOWNLOAD
-                    </q-btn>
-                    <!-- deploy button -->
-                    <q-btn
-                        flat
-                        dense
-                        round
-                        icon="cloud_upload"
-                        aria-label="Deploy"
-                        @click.stop="deployApp(app)"
-                    >
-                      DEPLOY
-                    </q-btn>
+                  </router-link>
+                  Last Updated: {{ app.lastUpdated }}
+                  <div>
+                    <q-badge :label="app.translations ? app.translations.length : 1" color="primary" />
+                  </div>
+
+                  <!-- download as xslx button -->
+                  <q-btn
+                      flat
+                      dense
+                      round
+                      icon="get_app"
+                      aria-label="Download"
+                      @click.stop="downloadAsXlsx(app)"
+                  >
+                    DOWNLOAD
+                  </q-btn>
+                  <!-- deploy button -->
+                  <q-btn
+                      flat
+                      dense
+                      round
+                      icon="cloud_upload"
+                      aria-label="Deploy"
+                      @click.stop="deployApp(app)"
+                  >
+                    DEPLOY
+                  </q-btn>
                 </q-item-section>
             </q-item>
         </q-list>
@@ -67,7 +75,7 @@ const showPopup = ref(false)
 const newAppName = ref('')
 const msg = ref('')
 
-// download as xlsx - send to api/
+// download as xlsx - send to api/Apps/AppName/download
 const downloadAsXlsx = async (app) => {
   const response = await fetch(`/api/Apps/${app.name}/download`, {
     method: 'GET',
@@ -90,7 +98,28 @@ const downloadAsXlsx = async (app) => {
   }
 }
 
+// deploy app - send to api/Apps/AppName/deploy
+const deployApp = async (app) => {
+  const response = await fetch(`/api/Apps/${app.name}/deploy`, {
+    method: 'POST',
+    headers: {
+      Accept: '*/*'
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  } else {
+    msg.value = 'App deployed successfully'
+    console.log('App deployed successfully', app.name)
+  }
+}
 const addNewApp = async () => {
+  if (!newAppName.value) {
+    msg.value = 'App name is required!'
+    return
+  }
+
   try {
     const response = await fetch('/api/Apps', {
       method: 'POST',
@@ -100,11 +129,13 @@ const addNewApp = async () => {
       },
       body: JSON.stringify(newAppName.value)
     })
+
     if (!response.ok) {
-      msg.value = 'Error adding app!  '
+      const errorData = await response.json()
+      msg.value = `Error adding app! ${errorData.message}`
       throw new Error(`HTTP error! status: ${response.status}`)
     } else {
-      appsList.value.push(newAppName.value)
+      appsList.value.push({ name: newAppName.value })
       console.log('App added successfully', newAppName.value)
       newAppName.value = ''
       msg.value = 'App added successfully'
@@ -115,4 +146,17 @@ const addNewApp = async () => {
     showPopup.value = false
   }
 }
+
+const isUpdatedBeforeLoading = (app) => {
+  const lastUpdated = new Date(app.lastUpdated)
+  const loadingTime = ref(new Date())
+  return lastUpdated < loadingTime.value
+}
+
 </script>
+<style>
+.appname {
+  color: #1976d2;
+  text-decoration: none;
+}
+</style>
