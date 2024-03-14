@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title>
-          Translations App
+          <router-link to="/" class="homelink">Translations App</router-link>
         </q-toolbar-title>
 
       </q-toolbar>
@@ -67,3 +67,10 @@ function toggleLeftDrawer () {
 }
 
 </script>
+<style scoped>
+.homelink {
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+}
+</style>

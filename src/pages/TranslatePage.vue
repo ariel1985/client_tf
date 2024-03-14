@@ -1,8 +1,9 @@
 <template>
     <q-page class="flex flex-center">
-        <div>
+        <div class="q-gutter-md">
             <h1>Translate {{ app }}</h1>
-            <q-btn label="Add new translation" @click="addNewTranslation" />
+            <q-btn label="Add new translation" color="primary" @click="addNewTranslation" />
+            <q-btn label="Save" color="primary" @click="saveTranslations" />
             <q-table
                 :rows="tableData"
                 :columns="columns"
@@ -36,6 +37,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { appsList } from '../store.js'
 
 const route = useRoute()
 const app = ref(route.params.app)
@@ -70,6 +72,13 @@ const fetchTranslations = () => {
     .catch(error => {
       console.error('Error:', error)
     })
+}
+
+const saveTranslations = () => {
+  const appIndex = appsList.value.findIndex(a => a.name === app.value)
+  if (appIndex !== -1) {
+    appsList.value[appIndex].translations = tableData.value
+  }
 }
 
 // Watch for changes in the route params and re-fetch translations

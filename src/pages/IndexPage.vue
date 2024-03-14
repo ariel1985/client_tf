@@ -1,6 +1,6 @@
 <template>
     <q-page class="flex flex-center">
-      <div>
+      <div class="q-gutter-md">
         <h1 class="text-h4">Apps Page</h1>
         <div class="text-h6 text-red ">{{ msg }}</div>
 
