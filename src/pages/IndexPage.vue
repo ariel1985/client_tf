@@ -1,5 +1,5 @@
 <template>
-    <q-page class="flex flex-center">
+    <q-page class="flex q-ma-md">
       <div class="q-gutter-md">
         <h1 class="text-h4">Apps Page</h1>
         <div class="text-h6 text-red ">{{ msg }}</div>
@@ -29,37 +29,42 @@
                 v-ripple
                 :class="{ 'bg-warning': isUpdatedBeforeLoading(app) }"
             >
-                <q-item-section>
-                  <router-link :to="`/translate/${app.name}`" class="appname">
-                    App name: <b>{{ app.name }}</b>
-                  </router-link>
-                  Last Updated: {{ app.lastUpdated }}
-                  <div>
+                <q-item-section class="itembox">
+
+                  <div class="tr-count">
                     <q-badge :label="app.translations ? app.translations.length : 1" color="primary" />
                   </div>
 
+                  <div>
+                    App name: <router-link :to="`/translate/${app.name}`" class="appname">
+                      <b>{{ app.name }}</b>
+                    </router-link>
+                  </div>
+                  Last Updated: {{ formatDate(app.last_updated) }}
+                </q-item-section>
+
+                <q-item-section side class="item-btns">
                   <!-- download as xslx button -->
+                  <!-- add title to each button -->
                   <q-btn
                       flat
                       dense
                       round
+                      title="Download"
                       icon="get_app"
                       aria-label="Download"
                       @click.stop="downloadAsXlsx(app)"
-                  >
-                    DOWNLOAD
-                  </q-btn>
+                  />
                   <!-- deploy button -->
                   <q-btn
                       flat
                       dense
                       round
+                      title="Deploy"
                       icon="cloud_upload"
                       aria-label="Deploy"
                       @click.stop="deployApp(app)"
-                  >
-                    DEPLOY
-                  </q-btn>
+                  />
                 </q-item-section>
             </q-item>
         </q-list>
@@ -153,10 +158,39 @@ const isUpdatedBeforeLoading = (app) => {
   return lastUpdated < loadingTime.value
 }
 
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric'
+  })
+}
+
 </script>
 <style>
 .appname {
   color: #1976d2;
   text-decoration: none;
+}
+.itembox {
+  display: flex;
+  justify-content: space-between;
+  width: 350px;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 20px;
+}
+.item-btns {
+  margin: 5px;
+  justify-content: left;
+  align-items: left;
+}
+.tr-count {
+  display: flex;
+  justify-content: right;
+  align-items: right;
 }
 </style>

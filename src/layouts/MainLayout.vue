@@ -35,11 +35,11 @@
           clickable
           v-ripple
         >
-        <q-item-section>
-          <router-link :to="`/translate/${app.name}`">
-            {{ app.name }}
-          </router-link>
-        </q-item-section>
+        <router-link :to="`/translate/${app.name}`">
+          <q-item-section>
+              {{ app.name }}
+            </q-item-section>
+        </router-link>
       </q-item>
     </q-list>
   </q-drawer>
