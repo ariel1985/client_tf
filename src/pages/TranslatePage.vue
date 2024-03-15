@@ -56,20 +56,21 @@ const columns = ref([
 let id = 0
 
 const fetchTranslations = () => {
-  const appIndex = appsList.value.findIndex(a => a.name === app.value)
-  if (appIndex !== -1 && appsList.value[appIndex].translations) {
+  const appIndex = appsList.value.findIndex(a => a.Name === app.value)
+  if (appIndex !== -1 && appsList.value[appIndex].Translations) {
     // App is in the store and has translations, use the translations from the store
-    tableData.value = appsList.value[appIndex].translations
+    tableData.value = appsList.value[appIndex].Translations
   } else {
     console.error('Error: Translations for this app are not available in the store.')
   }
 }
+
 const saveTranslations = () => {
-  const appIndex = appsList.value.findIndex(a => a.name === app.value)
+  const appIndex = appsList.value.findIndex(a => a.Name === app.value)
   if (appIndex !== -1) {
-    appsList.value[appIndex].translations = tableData.value
+    appsList.value[appIndex].Translations = tableData.value
     // update the app last_updated field
-    appsList.value[appIndex].last_updated = new Date().toISOString()
+    appsList.value[appIndex].Last_updated = new Date().toISOString()
   }
   // show appList (from store) on console
   console.log(appsList.value)

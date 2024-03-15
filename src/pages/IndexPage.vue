@@ -101,13 +101,10 @@ const addNewApp = () => {
       } else {
         return response.json().then(responseData => {
           console.log('response', responseData)
-          console.log('appsList', appsList.value)
           appsList.value.push(responseData)
-          console.log('App added successfully', newAppName.value)
           console.log('appsList', appsList.value)
-
+          msg.value = `App ${newAppName.value} added successfully`
           newAppName.value = ''
-          msg.value = 'App added successfully'
         })
       }
     })
@@ -181,12 +178,13 @@ const deployApp = async (app) => {
 }
 
 const isUpdatedBeforeLoading = (app) => {
-  const lastUpdated = new Date(app.lastUpdated)
+  const lastUpdated = new Date(app.Last_updated)
   const loadingTime = ref(new Date())
-  return lastUpdated < loadingTime.value
+  return lastUpdated > loadingTime.value
 }
 
 const formatDate = (dateString) => {
+  console.log('dateString', dateString)
   return new Date(dateString).toLocaleString('en-US', {
     weekday: 'short',
     month: 'short',
