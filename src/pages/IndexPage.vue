@@ -8,7 +8,7 @@
           <q-btn color="primary" @click="showPopup = true">
             Add new app
           </q-btn>
-          <q-popup-edit v-model="showPopup" @save="addNewApp" content-class="my-popup">
+          <q-popup-edit v-model="showPopup" @save="addNewApp" content-class="my-popup" class="popup-new-app">
             <template v-slot:default>
               <q-input v-model="newAppName" dense autofocus counter @keyup.enter="addNewApp" />
               <q-btn
@@ -32,20 +32,19 @@
                 <q-item-section class="itembox">
 
                   <div class="tr-count">
-                    <q-badge :label="app.translations ? app.translations.length : 1" color="primary" />
+                    <q-badge :label="app.Translations ? app.Translations.length : 1" color="primary" />
                   </div>
 
                   <div>
-                    App name: <router-link :to="`/translate/${app.name}`" class="appname">
-                      <b>{{ app.name }}</b>
+                    App name: <router-link :to="`/translate/${app.Name}`" class="appname">
+                      <b>{{ app.Name }}</b>
                     </router-link>
                   </div>
-                  Last Updated: {{ formatDate(app.last_updated) }}
+                  Last Updated: {{ formatDate(app.Last_updated) }}
                 </q-item-section>
 
                 <q-item-section side class="item-btns">
                   <!-- download as xslx button -->
-                  <!-- add title to each button -->
                   <q-btn
                       flat
                       dense
@@ -80,6 +79,48 @@ const showPopup = ref(false)
 const newAppName = ref('')
 const msg = ref('')
 
+const addNewApp = () => {
+  if (!newAppName.value) {
+    msg.value = 'App name is required!'
+    return
+  }
+  fetch('/api/Apps', {
+    method: 'POST',
+    headers: {
+      Accept: '*/*',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(newAppName.value)
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          msg.value = `Error adding app! ${errorData.message}`
+          throw new Error(`HTTP error! status: ${response.status}`)
+        })
+      } else {
+        return response.json().then(responseData => {
+          console.log('response', responseData)
+          console.log('appsList', appsList.value)
+          appsList.value.push(responseData)
+          console.log('App added successfully', newAppName.value)
+          console.log('appsList', appsList.value)
+
+          newAppName.value = ''
+          msg.value = 'App added successfully'
+        })
+      }
+    })
+    .catch(error => {
+      console.error(error)
+    })
+    .finally(() => {
+    // hide the popup-new-app with css after adding new app
+    // since it's not working with showPopup.value = false
+      document.querySelector('.popup-new-app').style.display = 'none'
+    })
+}
+
 // download as xlsx - send to api/Apps/AppName/download
 const downloadAsXlsx = async (app) => {
   const response = await fetch(`/api/Apps/${app.name}/download`, {
@@ -105,51 +146,38 @@ const downloadAsXlsx = async (app) => {
 
 // deploy app - send to api/Apps/AppName/deploy
 const deployApp = async (app) => {
-  const response = await fetch(`/api/Apps/${app.name}/deploy`, {
-    method: 'POST',
-    headers: {
-      Accept: '*/*'
-    }
-  })
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
-  } else {
-    msg.value = 'App deployed successfully'
-    console.log('App deployed successfully', app.name)
-  }
-}
-const addNewApp = async () => {
-  if (!newAppName.value) {
+  if (newAppName.value === '') {
     msg.value = 'App name is required!'
     return
   }
-
-  try {
-    const response = await fetch('/api/Apps', {
-      method: 'POST',
-      headers: {
-        Accept: '*/*',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newAppName.value)
+  fetch(`/api/Apps/${app.name}/deploy`, {
+    method: 'POST',
+    headers: {
+      Accept: '*/*',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(appsList.value.find(app => app.name === newAppName.value))
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          msg.value = `Error adding app! ${errorData.message}`
+          throw new Error(`HTTP error! status: ${response.status}`)
+        })
+      } else {
+        return response.json().then(() => {
+          console.log('App added successfully', newAppName.value)
+          newAppName.value = ''
+          msg.value = 'App added successfully'
+        })
+      }
     })
-
-    if (!response.ok) {
-      const errorData = await response.json()
-      msg.value = `Error adding app! ${errorData.message}`
-      throw new Error(`HTTP error! status: ${response.status}`)
-    } else {
-      appsList.value.push({ name: newAppName.value })
-      console.log('App added successfully', newAppName.value)
-      newAppName.value = ''
-      msg.value = 'App added successfully'
-    }
-  } catch (error) {
-    console.error(error)
-  } finally {
-    showPopup.value = false
-  }
+    .catch(error => {
+      console.error(error)
+    })
+    .finally(() => {
+      showPopup.value = false
+    })
 }
 
 const isUpdatedBeforeLoading = (app) => {
@@ -168,8 +196,8 @@ const formatDate = (dateString) => {
     minute: 'numeric'
   })
 }
-
 </script>
+
 <style>
 .appname {
   color: #1976d2;

@@ -13,7 +13,7 @@ export async function fetchAppsList () {
       const translationsData = await translationsResponse.json()
       const formattedTranslations = Object.entries(translationsData.Translations).map(([keyword, Translation]) => ({ id: id++, keyword, ...Translation }))
       // Add the app to the store with its translations
-      appsList.value.push({ name: appName, translations: formattedTranslations, last_updated: new Date() })
+      appsList.value.push({ Name: translationsData.Name, Translations: formattedTranslations, Last_updated: new Date() })
     }
     console.log('fetched data', appsList.value)
   } catch (error) {
