@@ -23,6 +23,14 @@
       show-if-above
       bordered
     >
+      <router-link to="/" >
+        <q-btn
+          class="q-ma-md"
+          label="My Apps"
+          color="primary"
+        />
+      </router-link>
+
       <q-list>
         <q-item-label
           header
